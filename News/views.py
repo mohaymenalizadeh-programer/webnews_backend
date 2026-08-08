@@ -129,21 +129,8 @@ class NewsComentViewSet(viewsets.ModelViewSet):
 class ListApiview(APIView):
     def get(self, request):
         user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-        if 'iphone' in user_agent or 'ipad' in user_agent or 'ipod' in user_agent:
-            device_type = 'iOS (iPhone/iPad)'
-        elif 'android' in user_agent:
-            device_type = 'Android'
-        elif 'macintosh' in user_agent or 'mac os' in user_agent:
-            device_type = 'macOS (Mac)'
-        elif 'linux' in user_agent:
-            device_type = 'Linux'
-        elif 'windows' in user_agent:
-            device_type = 'Windows'
-        else:
-            device_type = 'سایر / نامشخص'
-
+        device_type = 'Mobile' if ('mobile' in user_agent or 'android' in user_agent or 'iphone' in user_agent) else 'Desktop'
         Visit.objects.create(device=device_type)
-        return Response({"status": "ok"})
 
         data = {
             "newsoftheday": list(Newsoftheday.objects.all().order_by('-publish_date')[:3].values(
