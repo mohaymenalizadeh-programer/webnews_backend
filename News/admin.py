@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Newsoftheday, NewsLifestyle, NewsDecoration, NewsTechnology , NewsArtculture , Slidertxt , Slidernews , Coment ,Visit, PageVideo , Portfolio
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Count
 # Register your models here.
 
 admin.site.register(Newsoftheday)
@@ -34,16 +35,27 @@ class VisitAdmin(admin.ModelAdmin):
         today = timezone.now().date()
         yesterday = today - timedelta(days=1)
         week_ago = today - timedelta(days=7)
+        today_visits_count = Visit.objects.filter(created_at__date=today).count()
+        devices_query = (
+            Visit.objects.filter(created_at__date=today)
+            .values('device')
+            .annotate(total=Count('device'))
+        )
+        if devices_query:
+            device_summary = " | ".join([f"{item['device']}: {item['total']}" for item in devices_query])
+        else:
+            device_summary = "هیچ بازدیدی ثبت نشده"
 
-        today_visits = Visit.objects.filter(created_at__date=today)
-        devices_today = list(today_visits.values_list('device', flat=True))
+
+        yesterday_count = Visit.objects.filter(created_at__date=yesterday).count()
+        week_count = Visit.objects.filter(created_at__date__gte=week_ago).count()
 
         extra_context = extra_context or {}
         extra_context['title'] = (
-            f"امروز: {today_visits.count()} بازدید | "
-            f"دستگاه‌های امروز: {', '.join(devices_today) if devices_today else 'هیچ'} | "
-            f"دیروز: {Visit.objects.filter(created_at__date=yesterday).count()} | "
-            f"این هفته: {Visit.objects.filter(created_at__date__gte=week_ago).count()}"
+            f"امروز: {today_visits_count} بار | "
+            f"دستگاه‌های امروز: [{device_summary}] | "
+            f"دیروز: {yesterday_count} | "
+            f"این هفته: {week_count}"
         )
         return super().changelist_view(request, extra_context=extra_context)
 
