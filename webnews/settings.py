@@ -8,13 +8,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+7
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'my-simple-local-key-12345')
 
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-yn_m7bl)b-&c_%s6-vs!gawnsdka^tzb88+8^*#^255c$g%b_6'
-)
-
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+7
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     'webflow.pythonanywhere.com',
